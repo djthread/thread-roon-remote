@@ -19,7 +19,7 @@ var roon = new RoonApi({
     console.log("PAIRED");
     core = core_;
 
-    // transport.subscribe_zones(function(cmd, data) {
+    // core.services.RoonApiTransport.subscribe_zones(function(cmd, data) {
     //   console.log("ZONES SUBSCRIBED");
     //   console.log(core.core_id,
     //     core.display_name,
@@ -53,22 +53,25 @@ svc_status.set_status('All is good', false);
 
 
 joystick.on('button', (ev) => {
-  console.log('JOYSTICK EVENT', ev);
-
   // there must be a connected core, and the button must be pressed
   // down (not released)
   if (!core || ev.value != 1) return;
 
   switch (ev.number) {
     case 0:
+      console.log('Button 0 - previous');
       core.services.RoonApiTransport.control(zone, 'previous');
       break;
     case 1:
+      console.log('Button 1 - playpause');
       core.services.RoonApiTransport.control(zone, 'playpause');
       break;
     case 2:
+      console.log('Button 2 - next');
       core.services.RoonApiTransport.control(zone, 'next');
       break;
+    default:
+      console.log('UNMAPPED JOYSTICK EVENT', ev);
   }
   // { time: 37560, value: 1, number: 3, type: 'button', id: 0 }
   // { time: 37660, value: 1, number: 2, type: 'button', id: 0 }
