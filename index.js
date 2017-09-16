@@ -1,9 +1,10 @@
-let RoonApi        = require('node-roon-api'),
+let joystick = new (require('joystick'))(0, 3500, 350),
+  RoonApi        = require('node-roon-api'),
   RoonApiSettings  = require('node-roon-api-settings'),
   RoonApiStatus    = require('node-roon-api-status'),
   RoonApiTransport = require('node-roon-api-transport');
 
-let core, transport,
+let core,
   zone = '160115e8162dfe46cdcd8ea578ecefa359a3'; // JukePi Hugo2
 
 var roon = new RoonApi({
@@ -17,29 +18,28 @@ var roon = new RoonApi({
   core_paired: function(core_) {
     console.log("PAIRED");
     core = core_;
-    transport = core.services.RoonApiTransport;
 
-    transport.subscribe_zones(function(cmd, data) {
-      console.log("ZONES SUBSCRIBED");
-      console.log(core.core_id,
-        core.display_name,
-        core.display_version,
-        "-",
-        cmd,
-        JSON.stringify(data, null, '  '));
-    });
+    // transport.subscribe_zones(function(cmd, data) {
+    //   console.log("ZONES SUBSCRIBED");
+    //   console.log(core.core_id,
+    //     core.display_name,
+    //     core.display_version,
+    //     "-",
+    //     cmd,
+    //     JSON.stringify(data, null, '  '));
+    // });
   },
 
   core_unpaired: function(core_) {
     core = undefined;
 
-    console.log("UNPAIRED");
-    console.log(core.core_id,
-      core.display_name,
-      core.display_version,
-      "-",
-      "LOST");
-  }
+    // console.log("UNPAIRED");
+    // console.log(core.core_id,
+    //   core.display_name,
+    //   core.display_version,
+    //   "-",
+    //   "LOST");
+    }
 });
 
 var svc_status = new RoonApiStatus(roon);
@@ -51,10 +51,28 @@ roon.init_services({
 
 svc_status.set_status('All is good', false);
 
-setTimeout(() => {
-  // core.services.RoonApiTransport.control(zone, 'playpause');
-  core.services.RoonApiTransport.control(zone, 'next');
-  core.services.RoonApiTransport.control(zone, 'previous');
-}, 2000);
+
+joystick.on('button', (ev) => {
+  console.log('JOYSTICK EVENT', ev);
+
+  // there must be a connected core, and the button must be pressed
+  // down (not released)
+  if (!core || ev.value != 1) return;
+
+  switch (ev.number) {
+    case 0:
+      core.services.RoonApiTransport.control(zone, 'previous');
+      break;
+    case 1:
+      core.services.RoonApiTransport.control(zone, 'playpause');
+      break;
+    case 2:
+      core.services.RoonApiTransport.control(zone, 'next');
+      break;
+  }
+  // { time: 37560, value: 1, number: 3, type: 'button', id: 0 }
+  // { time: 37660, value: 1, number: 2, type: 'button', id: 0 }
+  // { time: 37730, value: 0, number: 3, type: 'button', id: 0 }
+});
 
 roon.start_discovery();
