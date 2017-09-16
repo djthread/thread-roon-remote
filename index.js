@@ -1,6 +1,9 @@
-var RoonApi          = require('node-roon-api'),
+let RoonApi          = require('node-roon-api'),
+    RoonApiSettings  = require('node-roon-api-settings'),
     RoonApiStatus    = require('node-roon-api-status'),
     RoonApiTransport = require('node-roon-api-transport');
+
+let core, transport;
 
 var roon = new RoonApi({
     extension_id:       'com.threadbox.rune-remote',
@@ -10,8 +13,9 @@ var roon = new RoonApi({
     email:              'thethread@gmail.com',
     website:            'https://threadbox.net/',
 
-    core_paired: function(core) {
-        let transport = core.services.RoonApiTransport;
+    core_paired: function(core_) {
+        core = core_;
+        transport = core.services.RoonApiTransport;
 
         transport.subscribe_zones(function(cmd, data) {
             console.log("PAIRED");
@@ -24,7 +28,9 @@ var roon = new RoonApi({
         });
     },
 
-    core_unpaired: function(core) {
+    core_unpaired: function(core_) {
+        core = undefined;
+
         console.log("UNPAIRED");
         console.log(core.core_id,
             core.display_name,
