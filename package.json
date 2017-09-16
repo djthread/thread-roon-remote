@@ -1,0 +1,14 @@
+{
+  "name": "thread-roon-remote",
+  "version": "1.0.0",
+  "description": "Thread's Roon Remote",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "thread <thethread@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "node-roon-api": "github:RoonLabs/node-roon-api"
+  }
+}
