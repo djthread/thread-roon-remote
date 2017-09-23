@@ -78,15 +78,6 @@ joystick.on('button', (ev) => {
       console.log ('sutting down...');
       exec("shutdown -h now");
       break;
-    case 0:
-      if (ev.value < 0) { // left
-        console.log('seeking backwards');
-        trans.seek(zone, 'relative', -60);
-      } else if (ev.value > 0) { // right
-        console.log('seeking forwards');
-        trans.seek(zone, 'relative', 60);
-      }
-      break;
     default:
       console.log('UNMAPPED BUTTON EVENT', ev);
   }
