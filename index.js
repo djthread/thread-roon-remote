@@ -6,11 +6,22 @@ let mpd = require('mpd'),
   RoonApiStatus = require('node-roon-api-status'),
   RoonApiTransport = require('node-roon-api-transport');
 
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
 
 let core,
   zone = '160115e8162dfe46cdcd8ea578ecefa359a3', // JukePi Hugo2
   mode = 'roon'; // 'roon' or 'mpd'
+
+var ashuffle_proc,
+  ashuffle = function ashuffle(enable) {
+    if (enable) {
+      console.log('starting ashuffle');
+      ashuffle_proc = spawn('ashuffle');
+    } else {
+      console.log('killing ashuffle');
+      ashuffle_proc.kill();
+    }
+  };
 
 var client = mpd.connect({port: 6600, host: 'localhost'})
 var mpdcmd = function(command, params) {
@@ -33,6 +44,8 @@ var roon = new RoonApi({
   core_paired: function(core_) {
     console.log("PAIRED");
     core = core_;
+
+    core.services.RoonApiTransport.control(zone, 'play');
 
     // core.services.RoonApiTransport.subscribe_zones(function(cmd, data) {
     //   console.log("ZONES SUBSCRIBED");
@@ -148,12 +161,22 @@ joystick.on('axis', (ev) => {
       if (ev.value < 0) { // up - toggle mode
         if (mode == 'roon') {
           console.log('MPD MODE!');
-          core.services.RoonApiTransport.control(zone, 'stop');
           mode = 'mpd';
+          exec('systemctl stop roonbridge.service', () => {
+            exec('systemctl start mpd.service', () => {
+              console.log('** mpd started');
+              ashuffle(true);
+            });
+          });
         } else if (mode == 'mpd') {
           console.log('ROON MODE!');
-          mpdcmd('stop', [])
           mode = 'roon';
+          ashuffle(false);
+          exec('systemctl stop mpd.service', () => {
+            exec('systemctl start roonbridge.service', () => {
+              console.log('** roonbridge started');
+            });
+          });
         }
       } else if (ev.value > 0) { // down
       }
