@@ -16,7 +16,7 @@ var client = mpd.connect({port: 6600, host: 'localhost'})
 client.on('ready', function() {
   console.log('mpd ready');
   cmd = mpd.cmd;
-}
+});
 
 var roon = new RoonApi({
   extension_id:       'com.threadbox.rune-remote',
@@ -73,7 +73,6 @@ joystick.on('button', (ev) => {
   switch (ev.number) {
     case 9: // start
       console.log('Button 0 - previous');
-      trans.control(zone, 'previous');
       switch (mode) {
         case 'roon': trans.control(zone, 'previous'); break;
         case 'mpd': cmd('previous', []); break;
@@ -81,7 +80,6 @@ joystick.on('button', (ev) => {
       break;
     case 0: // b
       console.log('Button 1 - playpause');
-      trans.control(zone, 'playpause');
       switch (mode) {
         case 'roon': trans.control(zone, 'playpause'); break;
         case 'mpd': cmd('pause', []); break;
