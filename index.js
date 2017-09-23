@@ -13,6 +13,10 @@ let core,
   mode = 'roon'; // 'roon' or 'mpd'
 
 var client = mpd.connect({port: 6600, host: 'localhost'})
+var mpdcmd = function(command, params) {
+  if (!cmd) return;
+  client.sendCommand(cmd(command, params), function() {});
+};
 client.on('ready', function() {
   console.log('mpd ready');
   cmd = mpd.cmd;
@@ -75,21 +79,21 @@ joystick.on('button', (ev) => {
       console.log('Button 0 - previous');
       switch (mode) {
         case 'roon': trans.control(zone, 'previous'); break;
-        case 'mpd': cmd('previous', []); break;
+        case 'mpd': mpdcmd('previous', []); break;
       }
       break;
     case 0: // b
       console.log('Button 1 - playpause');
       switch (mode) {
         case 'roon': trans.control(zone, 'playpause'); break;
-        case 'mpd': cmd('pause', []); break;
+        case 'mpd': mpdcmd('pause', []); break;
       }
       break;
     case 1: // a
       console.log('Button 2 - next');
       switch (mode) {
         case 'roon': trans.control(zone, 'next'); break;
-        case 'mpd': cmd('next', []); break;
+        case 'mpd': mpdcmd('next', []); break;
       }
       break;
     case 8: // select
@@ -130,23 +134,25 @@ joystick.on('axis', (ev) => {
         console.log('seeking backwards');
         switch (mode) {
           case 'roon': trans.seek(zone, 'relative', -30); break;
-          case 'mpd': cmd('seekcur', ['-30']); break;
+          case 'mpd': mpdcmd('seekcur', ['-30']); break;
         }
       } else if (ev.value > 0) { // right
         console.log('seeking forwards');
         switch (mode) {
           case 'roon': trans.seek(zone, 'relative', 30); break;
-          case 'mpd': cmd('seekcur', ['+30']); break;
+          case 'mpd': mpdcmd('seekcur', ['+30']); break;
         }
       }
       break;
     case 1:
       if (ev.value < 0) { // up - toggle mode
         if (mode == 'roon') {
-          core.services.RoonApiTransport.control('stop');
+          console.log('MPD MODE!');
+          core.services.RoonApiTransport.control(zone, 'stop');
           mode = 'mpd';
         } else if (mode == 'mpd') {
-          cmd('stop', [])
+          console.log('ROON MODE!');
+          mpdcmd('stop', [])
           mode = 'roon';
         }
       } else if (ev.value > 0) { // down
