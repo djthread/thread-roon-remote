@@ -1,13 +1,22 @@
-let joystick = new (require('joystick'))(0, 3500, 350),
-  RoonApi        = require('node-roon-api'),
-  RoonApiSettings  = require('node-roon-api-settings'),
-  RoonApiStatus    = require('node-roon-api-status'),
+let mpd = require('mpd'),
+  cmd,
+  joystick = new (require('joystick'))(0, 3500, 350),
+  RoonApi = require('node-roon-api'),
+  RoonApiSettings = require('node-roon-api-settings'),
+  RoonApiStatus = require('node-roon-api-status'),
   RoonApiTransport = require('node-roon-api-transport');
 
 const { exec } = require('child_process');
 
 let core,
-  zone = '160115e8162dfe46cdcd8ea578ecefa359a3'; // JukePi Hugo2
+  zone = '160115e8162dfe46cdcd8ea578ecefa359a3', // JukePi Hugo2
+  mode = 'roon'; // 'roon' or 'mpd'
+
+var client = mpd.connect({port: 6600, host: 'localhost'})
+client.on('ready', function() {
+  console.log('mpd ready');
+  cmd = mpd.cmd;
+}
 
 var roon = new RoonApi({
   extension_id:       'com.threadbox.rune-remote',
@@ -65,17 +74,28 @@ joystick.on('button', (ev) => {
     case 9: // start
       console.log('Button 0 - previous');
       trans.control(zone, 'previous');
+      switch (mode) {
+        case 'roon': trans.control(zone, 'previous'); break;
+        case 'mpd': cmd('previous', []); break;
+      }
       break;
     case 0: // b
       console.log('Button 1 - playpause');
       trans.control(zone, 'playpause');
+      switch (mode) {
+        case 'roon': trans.control(zone, 'playpause'); break;
+        case 'mpd': cmd('pause', []); break;
+      }
       break;
     case 1: // a
       console.log('Button 2 - next');
-      trans.control(zone, 'next');
+      switch (mode) {
+        case 'roon': trans.control(zone, 'next'); break;
+        case 'mpd': cmd('next', []); break;
+      }
       break;
     case 8: // select
-      console.log ('sutting down...');
+      console.log('sutting down...');
       exec("shutdown -h now");
       break;
     default:
@@ -110,10 +130,28 @@ joystick.on('axis', (ev) => {
     case 0:
       if (ev.value < 0) { // left
         console.log('seeking backwards');
-        trans.seek(zone, 'relative', -60);
+        switch (mode) {
+          case 'roon': trans.seek(zone, 'relative', -30); break;
+          case 'mpd': cmd('seekcur', ['-30']); break;
+        }
       } else if (ev.value > 0) { // right
         console.log('seeking forwards');
-        trans.seek(zone, 'relative', 60);
+        switch (mode) {
+          case 'roon': trans.seek(zone, 'relative', 30); break;
+          case 'mpd': cmd('seekcur', ['+30']); break;
+        }
+      }
+      break;
+    case 1:
+      if (ev.value < 0) { // up - toggle mode
+        if (mode == 'roon') {
+          core.services.RoonApiTransport.control('stop');
+          mode = 'mpd';
+        } else if (mode == 'mpd') {
+          cmd('stop', [])
+          mode = 'roon';
+        }
+      } else if (ev.value > 0) { // down
       }
       break;
     default:

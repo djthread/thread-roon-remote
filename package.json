@@ -10,6 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "joystick": "github:JayBeavers/node-joystick",
+    "mpd": "github:andrewrk/mpd.js",
     "node-roon-api": "RoonLabs/node-roon-api",
     "node-roon-api-settings": "github:RoonLabs/node-roon-api-settings",
     "node-roon-api-status": "RoonLabs/node-roon-api-status",
