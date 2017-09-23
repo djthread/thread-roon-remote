@@ -57,26 +57,38 @@ svc_status.set_status('All is good', false);
 joystick.on('button', (ev) => {
   // there must be a connected core, and the button must be pressed
   // down (not released)
-  if (!core || ev.value != 1) return;
+  if (!core || ev.value == 0) return;
+
+  const trans = core.services.RoonApiTransport;
 
   switch (ev.number) {
     case 9: // start
       console.log('Button 0 - previous');
-      core.services.RoonApiTransport.control(zone, 'previous');
+      trans.control(zone, 'previous');
       break;
     case 0: // b
       console.log('Button 1 - playpause');
-      core.services.RoonApiTransport.control(zone, 'playpause');
+      trans.control(zone, 'playpause');
       break;
     case 1: // a
       console.log('Button 2 - next');
-      core.services.RoonApiTransport.control(zone, 'next');
+      trans.control(zone, 'next');
       break;
     case 8: // select
+      console.log ('sutting down...');
       exec("shutdown -h now");
       break;
+    case 0:
+      if (ev.value < 0) { // left
+        console.log('seeking backwards');
+        trans.seek(zone, 'relative', -60);
+      } else if (ev.value > 0) { // right
+        console.log('seeking forwards');
+        trans.seek(zone, 'relative', 60);
+      }
+      break;
     default:
-      console.log('UNMAPPED JOYSTICK EVENT', ev);
+      console.log('UNMAPPED BUTTON EVENT', ev);
   }
   // { time: .., value: 1, number: 1, type: 'button', id: 0 } # a
   // { time: .., value: 0, number: 1, type: 'button', id: 0 }
@@ -94,6 +106,28 @@ joystick.on('button', (ev) => {
   // { time: .., value: 0, number: 0, type: 'axis', id: 0 }
   // { time: .., value: 32767, number: 0, type: 'axis', id: 0 }#right
   // { time: .., value: 0, number: 0, type: 'axis', id: 0 }
+});
+
+joystick.on('axis', (ev) => {
+  // there must be a connected core, and the button must be pressed
+  // down (not released)
+  if (!core || ev.value == 0) return;
+
+  const trans = core.services.RoonApiTransport;
+
+  switch (ev.number) {
+    case 0:
+      if (ev.value < 0) { // left
+        console.log('seeking backwards');
+        trans.seek(zone, 'relative', -60);
+      } else if (ev.value > 0) { // right
+        console.log('seeking forwards');
+        trans.seek(zone, 'relative', 60);
+      }
+      break;
+    default:
+      console.log('UNMAPPED AXIS EVENT', ev);
+  }
 });
 
 roon.start_discovery();
