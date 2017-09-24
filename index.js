@@ -16,22 +16,29 @@ var ashuffle_proc,
   ashuffle = function ashuffle(enable) {
     if (enable) {
       console.log('starting ashuffle');
-      ashuffle_proc = spawn('ashuffle');
+      ashuffle_proc = spawn('ashuffle', [], {stdio: 'inherit'});
     } else {
       console.log('killing ashuffle');
       ashuffle_proc.kill();
     }
   };
 
-var client = mpd.connect({port: 6600, host: 'localhost'})
+var client;
+var mpd_connect = function mpd_connect() {
+  client = mpd.connect({port: 6600, host: 'localhost'});
+  client.on('ready', function() {
+    console.log('mpd ready');
+    cmd = mpd.cmd;
+  });
+  client.on('error', function(error) {
+    console.log(`mpd error: ${error}`); 
+  });
+  console.log(client);
+};
 var mpdcmd = function(command, params) {
   if (!cmd) return;
   client.sendCommand(cmd(command, params), function() {});
 };
-client.on('ready', function() {
-  console.log('mpd ready');
-  cmd = mpd.cmd;
-});
 
 var roon = new RoonApi({
   extension_id:       'com.threadbox.rune-remote',
@@ -42,9 +49,9 @@ var roon = new RoonApi({
   website:            'https://threadbox.net/',
 
   core_paired: function(core_) {
-    console.log("PAIRED");
     core = core_;
 
+    console.log('PAIRED, pressing play..');
     core.services.RoonApiTransport.control(zone, 'play');
 
     // core.services.RoonApiTransport.subscribe_zones(function(cmd, data) {
@@ -165,6 +172,7 @@ joystick.on('axis', (ev) => {
           exec('systemctl stop roonbridge.service', () => {
             exec('systemctl start mpd.service', () => {
               console.log('** mpd started');
+              mpd_connect();
               ashuffle(true);
             });
           });
