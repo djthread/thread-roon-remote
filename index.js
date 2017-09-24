@@ -33,14 +33,15 @@ var mpd_connect = function mpd_connect() {
   client.on('error', function(error) {
     console.log(`mpd error: ${error}`); 
   });
-  console.log(client);
 };
 var mpdcmd = function(command, params) {
   if (!cmd) return;
   client.sendCommand(cmd(command, params), function() {});
 };
 
-var roon = new RoonApi({
+var roon;
+
+roon = new RoonApi({
   extension_id:       'com.threadbox.rune-remote',
   display_name:       "Thread's Roon Remote",
   display_version:    '1.0.0',
@@ -86,6 +87,8 @@ roon.init_services({
 
 svc_status.set_status('All is good', false);
 
+roon.start_discovery();
+
 
 joystick.on('button', (ev) => {
   // there must be a connected core, and the button must be pressed
@@ -118,6 +121,7 @@ joystick.on('button', (ev) => {
       break;
     case 8: // select
       console.log('sutting down...');
+      client.sendCommand(cmd('stop', []));
       exec("shutdown -h now");
       break;
     default:
@@ -169,22 +173,41 @@ joystick.on('axis', (ev) => {
         if (mode == 'roon') {
           console.log('MPD MODE!');
           mode = 'mpd';
-          exec('systemctl stop roonbridge.service', () => {
-            exec('systemctl start mpd.service', () => {
-              console.log('** mpd started');
-              mpd_connect();
-              ashuffle(true);
+          trans.control(zone, 'stop', () => {
+            exec('systemctl restart mpd.service', () => {
+              setTimeout(() => {
+                mpd_connect();
+                ashuffle(true);
+              }, 1000);
             });
           });
+          // exec('systemctl stop roonbridge.service', () => {
+          //   exec('systemctl start mpd.service', () => {
+          //     console.log('** mpd started');
+          //     mpd_connect();
+          //     ashuffle(true);
+          //   });
+          // });
         } else if (mode == 'mpd') {
           console.log('ROON MODE!');
           mode = 'roon';
           ashuffle(false);
-          exec('systemctl stop mpd.service', () => {
-            exec('systemctl start roonbridge.service', () => {
-              console.log('** roonbridge started');
+          client.sendCommand(cmd('stop', []), function(err, msg) {
+            exec('systemctl restart roonbridge.service', () => {
+              console.log('ok, mpd got stop and roon is being restarted');
+              setTimeout(() => {
+                trans.control(zone, 'play', () => {
+                  console.log('pressed play on roon');
+                });
+              }, 12000);
             });
           });
+
+          // exec('systemctl stop mpd.service', () => {
+          //   exec('systemctl start roonbridge.service', () => {
+          //     console.log('** roonbridge started');
+          //   });
+          // });
         }
       } else if (ev.value > 0) { // down
       }
@@ -193,5 +216,3 @@ joystick.on('axis', (ev) => {
       console.log('UNMAPPED AXIS EVENT', ev);
   }
 });
-
-roon.start_discovery();
