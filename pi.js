@@ -56,9 +56,9 @@ joystick.subscribe((btn) => {
   } else if (btn == 'up') {
     if (mode == 'roon') {
       mode = 'mpd';
+      ashuffle.start();
       roon.control('stop', () => {
         roon.standby(() => {
-          ashuffle.start();
           // mpd.cmd('play');
         });
       });
