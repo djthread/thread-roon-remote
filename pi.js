@@ -1,22 +1,21 @@
 const log = require('./lib/log'),
   mpd = require('./lib/mpd'),
+  ashuffle = require('./lib/ashuffle'),
   roon = require('./lib/roon'),
   joystick = require('./lib/joystick');
 
 const { exec } = require('child_process');
 
-const zone = '160115e8162dfe46cdcd8ea578ecefa359a3'; // JukePi Hugo2
+const zone = '160115e8162dfe46cdcd8ea578ecefa359a3'; // JukePi Hugo2 zone
+const output = '170115e8162dfe46cdcd8ea578ecefa359a3'; // JukePi Hugo2 output
 let mode = 'roon'; // 'roon' or 'mpd'
 
 const go = (roonFn, mpdFn) => {
-  if (mode == 'roon') {
-    roonFn();
-  } else {
-    mpdFn();
-  }
+  mode == 'roon' ? roonFn() : mpdFn();
 };
 
-roon.start();
+roon.start(zone, output);
+mpd.connect();
 
 joystick.subscribe((btn) => {
   if (btn == 'start') {
@@ -47,9 +46,11 @@ joystick.subscribe((btn) => {
   } else if (btn == 'up') {
     if (mode == 'roon') {
       mode = 'mpd';
-      roon.standby(() => {
-        ashuffle.start();
-        // mpd.cmd('play');
+      roon.control('stop', [], () => {
+        roon.standby(() => {
+          ashuffle.start();
+          // mpd.cmd('play');
+        });
       });
     } else {
       mode = 'roon';
