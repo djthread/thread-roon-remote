@@ -1,6 +1,7 @@
-const mpd = require('./lib/mpd'),
+const log = require('./lib/log'),
+  mpd = require('./lib/mpd'),
   roon = require('./lib/roon'),
-  joystick = require('./lib/joy');
+  joystick = require('./lib/joystick');
 
 const { exec } = require('child_process');
 
@@ -15,44 +16,49 @@ const go = (roonFn, mpdFn) => {
   }
 };
 
-const toggleMode = () => {
-  if (mode == 'roon') {
-    mode = 'mpd';
-    roon.standby(() => {
-      ashuffle.start();
-      // mpd.cmd('play');
-    });
-  } else {
-    mode = 'roon';
-    ashuffle.stop();
-    mpd.cmd('stop', [], () => {
-      roon.control('play');
-    });
-  }
-};
+roon.start();
 
 joystick.subscribe((btn) => {
   if (btn == 'start') {
     go(() => { roon.control('previous'); },
        () => { mpd.cmd('previous', []); });
+
   } else if (btn == 'b') {
     go(() => { roon.control('playpause'); },
        () => { mpd.cmd('pause'); });
+
   } else if (btn == 'a') {
     go(() => { roon.control('next'); },
        () => { mpd.cmd('next'); });
+
   } else if (btn == 'select') {
     log.warn('shutting down!');
     mpd.cmd('stop', []);
     exec('shutdown -h now');
+
   } else if (btn == 'left') {
     go(() => { roon.seek('relative', -30); },
        () => { mpd.cmd('seekcur', ['-30']); });
+
   } else if (btn == 'right') {
     go(() => { roon.seek('relative', 30); },
        () => { mpd.cmd('seekcur', ['+30']); });
+
   } else if (btn == 'up') {
-    toggleMode();
+    if (mode == 'roon') {
+      mode = 'mpd';
+      roon.standby(() => {
+        ashuffle.start();
+        // mpd.cmd('play');
+      });
+    } else {
+      mode = 'roon';
+      ashuffle.stop();
+      mpd.cmd('stop', [], () => {
+        roon.control('play');
+      });
+    }
+
   } else {
     log.warn('Unmapped button:', btn);
   }
