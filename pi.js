@@ -12,18 +12,25 @@ const { exec } = require('child_process');
 const output = '170115e8162dfe46cdcd8ea578ecefa359a3';
 
 let mode = 'roon'; // 'roon' or 'mpd'
+// let mode = 'mpd'; // 'roon' or 'mpd'
 
 const go = (roonFn, mpdFn) => {
   mode == 'roon' ? roonFn() : mpdFn();
 };
 
-roon.start(output);
+let initial = true;
 mpd.connect();
+roon.start(output, () => {
+  if (initial) {
+    roon.control('play');
+    // initial = false;
+  }
+});
 
 joystick.subscribe((btn) => {
   if (btn == 'start') {
     go(() => { roon.control('previous'); },
-       () => { mpd.cmd('previous', []); });
+       () => { mpd.cmd('previous'); });
 
   } else if (btn == 'b') {
     go(() => { roon.control('playpause'); },
