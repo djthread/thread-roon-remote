@@ -6,15 +6,18 @@ const log = require('./lib/log'),
 
 const { exec } = require('child_process');
 
-const zone = '160115e8162dfe46cdcd8ea578ecefa359a3'; // JukePi Hugo2 zone
-const output = '170115e8162dfe46cdcd8ea578ecefa359a3'; // JukePi Hugo2 output
+// JukePi Hugo2 zone
+// const zone = '160115e8162dfe46cdcd8ea578ecefa359a3';
+// JukePi Hugo2 output
+const output = '170115e8162dfe46cdcd8ea578ecefa359a3';
+
 let mode = 'roon'; // 'roon' or 'mpd'
 
 const go = (roonFn, mpdFn) => {
   mode == 'roon' ? roonFn() : mpdFn();
 };
 
-roon.start(zone, output);
+roon.start(output);
 mpd.connect();
 
 joystick.subscribe((btn) => {
@@ -46,7 +49,7 @@ joystick.subscribe((btn) => {
   } else if (btn == 'up') {
     if (mode == 'roon') {
       mode = 'mpd';
-      roon.control('stop', [], () => {
+      roon.control('stop', () => {
         roon.standby(() => {
           ashuffle.start();
           // mpd.cmd('play');
