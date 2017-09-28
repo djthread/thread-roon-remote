@@ -9,6 +9,7 @@
   "author": "thread <thethread@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "express": "^4.16.0",
     "joystick": "github:JayBeavers/node-joystick",
     "mpd": "github:andrewrk/mpd.js",
     "node-roon-api": "RoonLabs/node-roon-api",

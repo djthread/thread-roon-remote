@@ -1,11 +1,12 @@
-// For my Raspberry Pi
+// For my Desktop
 //
 const log = require('./lib/log'),
   mpd = require('./lib/mpd'),
   ashuffle = require('./lib/ashuffle'),
   roon = require('./lib/roon'),
-  myJoystick = require('./lib/my.joystick'),
   joystick = require('./lib/joystick'),
+  myJoystick = require('./lib/my.joystick'),
+  web = require('./lib/web'),
   actions = require('./lib/actions');
 
 // JukePi Hugo2 zone
@@ -15,11 +16,16 @@ const output = '170115e8162dfe46cdcd8ea578ecefa359a3';
 
 let initial = true;
 mpd.connect();
-roon.start("Thread's Pi Roon Remote", output, () => {
+roon.start("Thread's Roon Remote", output, () => {
   if (initial) {
     roon.control('play');
-    // initial = false;
+    initial = false;
   }
+});
+
+web.start();
+web.subscribe((action) => {
+  actions.run(action, roon, mpd, ashuffle);
 });
 
 joystick.start();
