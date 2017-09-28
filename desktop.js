@@ -16,7 +16,7 @@ const output = '170115e8162dfe46cdcd8ea578ecefa359a3';
 
 let initial = true;
 mpd.connect();
-roon.start("Thread's Roon Remote", output, () => {
+roon.start("Thread's Desktop Roon Remote", output, () => {
   if (initial) {
     roon.control('play');
     initial = false;
