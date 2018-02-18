@@ -17,7 +17,7 @@ const selector = function selector(cmd, data) {
 
   let q = '';
   for (let i=0; i<zones.length; i++) {
-    q += `${i+1}: ${zones[i]}\n`;
+    q += `${i+1}: ${zones[i][0]}\n`;
   }
   
   const rl = readline.createInterface({
