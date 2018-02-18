@@ -4,7 +4,9 @@
   "description": "Thread's Roon Remote",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pick": "node picker.js",
+    "d": "node desktop.js"
   },
   "author": "thread <thethread@gmail.com>",
   "license": "MIT",
