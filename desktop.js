@@ -17,7 +17,7 @@ const log = require('./lib/log'),
 // System Output
 // const output = '16016854f660685ce8fb918b4f605a43fe2c';
 
-const output = fs.readFileSync("zone_id");
+const output = fs.readFileSync("zone_id", "utf8").trim();
 
 if (!output) {
   raise('No zone_id found!');
