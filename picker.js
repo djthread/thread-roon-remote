@@ -9,7 +9,7 @@ const log = require('./lib/log'),
 const selector = function selector(cmd, data) {
   let zones = [];
 
-  if (!data.zones) return;
+  if (!data || !data.zones) return;
 
   data.zones.forEach((zone) => {
     zones.push([zone.display_name, zone.zone_id]);
@@ -41,7 +41,7 @@ const selector = function selector(cmd, data) {
 roon.start(
   "Thread's Output Selector",
   null,
-  () => { log.info('connected.'); },
+  () => { /*log.info('connected.');*/ },
   selector,
   {log_level: "none"}
 );
