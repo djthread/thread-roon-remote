@@ -17,6 +17,7 @@
     "node-roon-api": "github:RoonLabs/node-roon-api",
     "node-roon-api-settings": "github:RoonLabs/node-roon-api-settings",
     "node-roon-api-status": "github:RoonLabs/node-roon-api-status",
-    "node-roon-api-transport": "github:RoonLabs/node-roon-api-transport"
+    "node-roon-api-transport": "github:RoonLabs/node-roon-api-transport",
+    "request": "^2.88.0"
   }
 }

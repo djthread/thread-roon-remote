@@ -41,7 +41,7 @@ const selector = function selector(cmd, data) {
 roon.start(
   "Thread's Output Selector",
   null,
-  () => { /*log.info('connected.');*/ },
+  () => { log.info('connected.'); },
   selector,
   {log_level: "none"}
 );
