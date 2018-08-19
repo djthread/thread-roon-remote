@@ -11,12 +11,12 @@
   "author": "thread <thethread@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.16.0",
+    "express": "^4.16.3",
     "joystick": "github:JayBeavers/node-joystick",
     "mpd": "github:andrewrk/mpd.js",
-    "node-roon-api": "RoonLabs/node-roon-api",
+    "node-roon-api": "github:RoonLabs/node-roon-api",
     "node-roon-api-settings": "github:RoonLabs/node-roon-api-settings",
-    "node-roon-api-status": "RoonLabs/node-roon-api-status",
-    "node-roon-api-transport": "RoonLabs/node-roon-api-transport"
+    "node-roon-api-status": "github:RoonLabs/node-roon-api-status",
+    "node-roon-api-transport": "github:RoonLabs/node-roon-api-transport"
   }
 }
